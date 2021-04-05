@@ -54,12 +54,12 @@ jobs:
     - name: gitaction-python ECR 
       id: build-python-ecr
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: gitaction-python
+        ECR_PYTHON_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_PYTHON_REPOSITORY: gitaction-python
       run: |
-        docker build -f ./docker/python/prod/Dockerfile -t $ECR_REPOSITORY .
-        docker tag $ECR_REPOSITORY:latest $ECR_REGISTRY/$ECR_REPOSITORY:latest
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        docker build -f ./docker/python/prod/Dockerfile -t $ECR_PYTHON_REPOSITORY .
+        docker tag $ECR_PYTHON_REPOSITORY:latest $ECR_PYTHON_REGISTRY/$ECR_PYTHON_REPOSITORY:latest
+        docker push $ECR_PYTHON_REGISTRY/$ECR_PYTHON_REPOSITORY:latest
 
     - name: gitactions-nginx ECR 
       id: build-nginx-ecr
@@ -77,6 +77,7 @@ jobs:
       with:
         task-definition: task-definition.json
         container-name: my-container
+        image: ${{ steps.build-python-ecr.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
